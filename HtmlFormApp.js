@@ -19,7 +19,7 @@ function appendFormData(object) {
 (function(r) {
   var HtmlFormApp;
   HtmlFormApp = (function() {
-    var checkHeader, checkObject, convObj;
+    var checkHeader, checkObject, convObj, setHyperLinks;
 
     class HtmlFormApp {
       constructor(obj_) {
@@ -29,12 +29,13 @@ function appendFormData(object) {
       }
 
       appendFormData() {
-        var header, keyConvertObj, range, values;
+        var header, hyperlinks, keyConvertObj, range, values;
         header = checkHeader.call(this);
         keyConvertObj = Object.entries(this.formObject).reduce((o, [k, v]) => {
           o[k.trim().toLocaleLowerCase()] = v;
           return o;
         }, {});
+        hyperlinks = false;
         values = [
           header.map((hv) => {
             var h;
@@ -50,6 +51,7 @@ function appendFormData(object) {
               return (keyConvertObj[h].reduce((ar,
           e) => {
                 if (e.files && e.files.length > 0) {
+                  hyperlinks = true;
                   e.files.forEach(({bytes,
           mimeType,
           filename}) => {
@@ -97,6 +99,9 @@ function appendFormData(object) {
         }
         range = this.sheet.getRange(this.lastRow + 1, 1, values.length, values[0].length);
         range.setValues(values);
+        if (hyperlinks === true) {
+          setHyperLinks.call(this, range, values);
+        }
         return {
           spreadsheet: this.obj.spreadsheet,
           sheet: this.sheet,
@@ -139,6 +144,7 @@ function appendFormData(object) {
       if (this.obj.formData.hasOwnProperty("parameters") && this.obj.formData.hasOwnProperty("parameter")) {
         if (this.obj.formData.hasOwnProperty("postData") && this.obj.formData.postData.hasOwnProperty("contents") && this.obj.formData.postData.hasOwnProperty("name") && this.obj.formData.postData.name === "postData") {
           if (this.obj.formData.postData.contents === "") {
+            // for doPost
             throw new Error(`Request body is not found.`);
           }
           try {
@@ -160,6 +166,7 @@ function appendFormData(object) {
           }));
         } else {
           if (!this.obj.formData.parameter.hasOwnProperty("formData") || this.obj.formData.parameter.hasOwnProperty("formData") === "") {
+            // for doGet
             throw new Error(`Query parameter is not found.`);
           }
           this.obj.formData = JSON.parse(this.obj.formData.parameter.formData);
@@ -252,8 +259,37 @@ function appendFormData(object) {
       }));
     };
 
+    setHyperLinks = function(range, values) {
+      var re;
+      re = new RegExp(this.delimiter, "g");
+      return values.forEach((r, i) => {
+        return r.forEach((c, j) => {
+          var indexes, offset, rich, t;
+          if (c && /https?:\/\//i.test(c)) {
+            t = [...c.matchAll(re)];
+            rich = SpreadsheetApp.newRichTextValue().setText(c);
+            if (t.length === 0) {
+              rich.setLinkUrl(c);
+            } else if (c.includes(this.delimiter)) {
+              offset = 0;
+              t.forEach((e) => {
+                var indexes;
+                indexes = [offset, e.index];
+                rich.setLinkUrl(...indexes, c.slice(...indexes));
+                return offset = e.index + 1;
+              });
+              indexes = [t.pop().index + 1, c.length];
+              rich.setLinkUrl(...indexes, c.slice(...indexes));
+            }
+            return range.offset(i, j).setRichTextValue(rich.build());
+          }
+        });
+      });
+    };
+
     return HtmlFormApp;
 
   }).call(this);
+
   return r.HtmlFormApp = HtmlFormApp;
 })(this);

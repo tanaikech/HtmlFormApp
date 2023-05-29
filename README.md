@@ -580,4 +580,8 @@ As a limitation, in the current stage, the maximum blob size for creating files 
 
   1. Initial release.
 
+- v1.0.1 (May 29, 2023)
+
+  1. When multiple files are uploaded, each URL was set as the hyperlink.
+
 [TOP](#top)
