@@ -29,7 +29,7 @@ This Google Apps Script library uses a Javascript library of [HtmlFormObjectPars
 
 | Methods                                   | Description                                                                                                                                                                                  |
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [appendFormData(object)](#appendFormData) | Parsing the form object parsed by [HtmlFormObjectParserForGoogleAppsScript_js](https://github.com/tanaikech/HtmlFormObjectParserForGoogleAppsScript_js) and append the value to Spreadsheet. |
+| [appendFormData(object, row)](#appendFormData) | Parsing the form object parsed by [HtmlFormObjectParserForGoogleAppsScript_js](https://github.com/tanaikech/HtmlFormObjectParserForGoogleAppsScript_js) and append the value to Spreadsheet. |
 
 ## About scopes
 
@@ -102,6 +102,8 @@ console.log(res)
 - **delimiterOfMultipleAnswers**: When the multiple answers are included in an input tag, the values are put to the sheet using this delimiter. Default is ",".
 
 - **valueAsRaw**: When this value is `true`, the raw values retrieved from HTML form are used. Default is `false`. When this value is not used to `false`, for example, the date is converted to the date object.
+
+- About 2nd argument of `appendFormData(object, row)`, this is from [this suggestion](https://github.com/tanaikech/HtmlFormApp/issues/1). When `row` is used, the value is put into the specific row of the Spreadsheet. In this case, please set the value of `row` more than 1.
 
 #### Output object
 
@@ -583,5 +585,9 @@ As a limitation, in the current stage, the maximum blob size for creating files 
 - v1.0.1 (May 29, 2023)
 
   1. When multiple files are uploaded, each URL was set as the hyperlink.
+
+- v1.0.2 (October 17, 2023)
+
+  1. The 2nd argument `row` of `appendFormData(object, row)` was added. This is from [this suggestion](https://github.com/tanaikech/HtmlFormApp/issues/1). When `row` is used, the value is put into the specific row of the Spreadsheet. In this case, please set the value of `row` more than 1.
 
 [TOP](#top)

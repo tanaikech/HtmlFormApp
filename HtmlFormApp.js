@@ -10,15 +10,16 @@ var appName = "HtmlFormApp";
 /**
  * Append HTML form data to Spreadsheet.<br>
  * @param {object} object Object including formData returned from HtmlFormObjectParserForGoogleAppsScript_js.
+ * @param {number} rowNumber The row number to edit (1-based index).
  * @return {object} object Object including Class Spreadsheet, Class Sheet, Class Range of the row put the values, values
  */
-function appendFormData(object) {
-    return new HtmlFormApp(object).appendFormData();
+function appendFormData(object, row = null) {
+  return new HtmlFormApp(object).appendFormData(row);
 }
 ;
-(function(r) {
+(function (r) {
   var HtmlFormApp;
-  HtmlFormApp = (function() {
+  HtmlFormApp = (function () {
     var checkHeader, checkObject, convObj, setHyperLinks;
 
     class HtmlFormApp {
@@ -28,7 +29,7 @@ function appendFormData(object) {
         checkObject.call(this, obj_);
       }
 
-      appendFormData() {
+      appendFormData(row_) {
         var header, hyperlinks, keyConvertObj, range, values;
         header = checkHeader.call(this);
         keyConvertObj = Object.entries(this.formObject).reduce((o, [k, v]) => {
@@ -49,44 +50,44 @@ function appendFormData(object) {
               return e.files;
             })) {
               return (keyConvertObj[h].reduce((ar,
-          e) => {
+                e) => {
                 if (e.files && e.files.length > 0) {
                   hyperlinks = true;
-                  e.files.forEach(({bytes,
-          mimeType,
-          filename}) => {
+                  e.files.forEach(({ bytes,
+                    mimeType,
+                    filename }) => {
                     return ar.push(this.obj.folder.createFile(Utilities.newBlob(bytes,
-          mimeType,
-          filename)).getUrl());
+                      mimeType,
+                      filename)).getUrl());
                   });
                 } else {
                   ar.push("");
                 }
                 return ar;
               },
-          [])).join(this.delimiter);
+                [])).join(this.delimiter);
             } else if (keyConvertObj[h] && (keyConvertObj[h][0].type === "checkbox" || keyConvertObj[h][0].type === "radio")) {
               if (this.choiceFormat && this.choiceFormat === true) {
-                return (keyConvertObj[h].map(({checked,
-          value}) => {
+                return (keyConvertObj[h].map(({ checked,
+                  value }) => {
                   return `${value}(${checked === true ? "checked" : "unchecked"})`;
                 })).join(this.delimiter);
               }
               return (keyConvertObj[h].reduce((arr,
-          {checked,
-          value}) => {
+                { checked,
+                  value }) => {
                 if (checked === true) {
                   arr.push(value);
                 }
                 return arr;
               },
-          [])).join(this.delimiter);
+                [])).join(this.delimiter);
             }
             if (keyConvertObj[h]) {
               if (keyConvertObj[h].length === 1) {
                 return keyConvertObj[h][0].value;
               } else {
-                return (keyConvertObj[h].map(({value}) => {
+                return (keyConvertObj[h].map(({ value }) => {
                   return value;
                 })).join(this.delimiter);
               }
@@ -97,7 +98,7 @@ function appendFormData(object) {
         if (this.lastRow === 0 && (!this.ignoreHeader || this.ignoreHeader === false)) {
           values.unshift(header);
         }
-        range = this.sheet.getRange(this.lastRow + 1, 1, values.length, values[0].length);
+        range = this.sheet.getRange(row_ || this.lastRow + 1, 1, values.length, values[0].length);
         range.setValues(values);
         if (hyperlinks === true) {
           setHyperLinks.call(this, range, values);
@@ -114,7 +115,7 @@ function appendFormData(object) {
 
     HtmlFormApp.name = appName;
 
-    checkHeader = function() {
+    checkHeader = function () {
       var header, hedFromSheet, oo;
       header = ["Date", ...this.orderOfFormObject];
       if (this.lastRow > 0 && (!this.ignoreHeader || this.ignoreHeader === false)) {
@@ -132,7 +133,7 @@ function appendFormData(object) {
       return header;
     };
 
-    checkObject = function(obj_) {
+    checkObject = function (obj_) {
       var _;
       if (!obj_) {
         throw new Error("Object for using this library is not given.");
@@ -144,7 +145,6 @@ function appendFormData(object) {
       if (this.obj.formData.hasOwnProperty("parameters") && this.obj.formData.hasOwnProperty("parameter")) {
         if (this.obj.formData.hasOwnProperty("postData") && this.obj.formData.postData.hasOwnProperty("contents") && this.obj.formData.postData.hasOwnProperty("name") && this.obj.formData.postData.name === "postData") {
           if (this.obj.formData.postData.contents === "") {
-            // for doPost
             throw new Error(`Request body is not found.`);
           }
           try {
@@ -166,7 +166,6 @@ function appendFormData(object) {
           }));
         } else {
           if (!this.obj.formData.parameter.hasOwnProperty("formData") || this.obj.formData.parameter.hasOwnProperty("formData") === "") {
-            // for doGet
             throw new Error(`Query parameter is not found.`);
           }
           this.obj.formData = JSON.parse(this.obj.formData.parameter.formData);
@@ -239,7 +238,7 @@ function appendFormData(object) {
       }
     };
 
-    convObj = function(obj_) {
+    convObj = function (obj_) {
       return Object.fromEntries(Object.entries(obj_).map(([k, v]) => {
         if (typeof v === "object" && v.hasOwnProperty("contents") && v.hasOwnProperty("length") && v.hasOwnProperty("name") && v.hasOwnProperty("type")) {
           v = this.obj.folder.createFile(v).getUrl();
@@ -259,7 +258,7 @@ function appendFormData(object) {
       }));
     };
 
-    setHyperLinks = function(range, values) {
+    setHyperLinks = function (range, values) {
       var re;
       re = new RegExp(this.delimiter, "g");
       return values.forEach((r, i) => {
@@ -290,6 +289,5 @@ function appendFormData(object) {
     return HtmlFormApp;
 
   }).call(this);
-
   return r.HtmlFormApp = HtmlFormApp;
 })(this);
