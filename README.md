@@ -19,6 +19,10 @@ There is Google Form in the Google service. Google Form can parse the submitted 
 
 This Google Apps Script library uses a Javascript library of [HtmlFormObjectParserForGoogleAppsScript_js](https://github.com/tanaikech/HtmlFormObjectParserForGoogleAppsScript_js). The form object from the HTML form is parsed using the Javascript library and sent to Google Apps Script side, and the object from Javascript is parsed and put to Spreadsheet using this Google Apps Script library.
 
+## `medium.com`
+
+[Easily Implementing HTML Form with Google Spreadsheet as Database using Google Apps Script](https://medium.com/google-cloud/easily-implementing-html-form-with-google-spreadsheet-as-database-using-google-apps-script-66472ab7bf6c)
+
 # Library's project key
 
 ```
