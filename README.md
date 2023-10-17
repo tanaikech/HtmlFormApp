@@ -590,6 +590,7 @@ As a limitation, in the current stage, the maximum blob size for creating files 
 - v1.0.2 (October 17, 2023)
 
   1. The 2nd argument `row` of `appendFormData(object, row)` was added. This is from [this suggestion](https://github.com/tanaikech/HtmlFormApp/issues/1). When `row` is used, the value is put into the specific row of the Spreadsheet. In this case, please set the value of `row` more than 1.
-    - In this case, the submitted row can be forcefully put into the specific row of Google Spreadsheet. So, when you run `appendFormData(object, row)` by the constant value of `row`, the submitted row is put into the same row. Please be careful about this.
+
+      - In this case, the submitted row can be forcefully put into the specific row of Google Spreadsheet. So, when you run `appendFormData(object, row)` by the constant value of `row`, the submitted row is put into the same row. Please be careful about this.
 
 [TOP](#top)
